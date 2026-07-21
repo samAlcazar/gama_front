@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { DepartmentModal } from './DepartmentModal';
+import { EmptyState } from './EmptyState';
 import { 
   Building2, 
   Plus, 
@@ -97,6 +98,7 @@ export const DepartmentsView = () => {
             placeholder="Buscar departamento por Nombre o Sigla..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            aria-label="Buscar departamento por nombre o sigla"
           />
         </div>
       </div>
@@ -122,8 +124,13 @@ export const DepartmentsView = () => {
               </tr>
             ) : filteredDepts.length === 0 ? (
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
-                  No se encontraron departamentos.
+                <td colSpan="5" style={{ padding: '1rem' }}>
+                  <EmptyState
+                    title="No se encontraron departamentos"
+                    description={search ? "Ningún departamento o dependencia coincide con la búsqueda." : "No existen departamentos registrados en el sistema."}
+                    actionText={search ? "Limpiar Búsqueda" : undefined}
+                    onAction={search ? () => setSearch('') : undefined}
+                  />
                 </td>
               </tr>
             ) : (

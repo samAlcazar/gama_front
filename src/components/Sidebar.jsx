@@ -31,7 +31,7 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
         </div>
       </div>
 
-      <nav className="nav-menu">
+      <nav className="nav-menu" aria-label="Navegación principal">
         {menuItems.map((item) => {
           if (item.perm && !hasPermission(item.perm)) return null;
           const Icon = item.icon;
@@ -41,6 +41,7 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
               key={item.id}
               className={`nav-item ${isActive ? 'active' : ''}`}
               onClick={() => setActiveTab(item.id)}
+              aria-current={isActive ? 'page' : undefined}
             >
               <Icon size={18} />
               <span>{item.label}</span>

@@ -15,6 +15,20 @@ export const DepartmentModal = ({ isOpen, onClose, onSave, departments }) => {
     setError('');
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen && !saving) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose, saving]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
@@ -42,17 +56,26 @@ export const DepartmentModal = ({ isOpen, onClose, onSave, departments }) => {
   };
 
   return (
-    <div className="modal-overlay">
+    <div
+      className="modal-overlay"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !saving) onClose();
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dept-modal-title"
+    >
       <div className="modal-content">
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Building2 size={20} color="var(--accent)" />
-            <h3 style={{ fontSize: '1.15rem' }}>Nuevo Departamento</h3>
+            <h3 id="dept-modal-title" style={{ fontSize: '1.15rem' }}>Nuevo Departamento</h3>
           </div>
           <button
             onClick={onClose}
             className="btn btn-secondary btn-icon-only"
             type="button"
+            aria-label="Cerrar ventana de departamento"
           >
             <X size={18} />
           </button>

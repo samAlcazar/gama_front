@@ -8,7 +8,10 @@ import {
   Activity, 
   CheckCircle2, 
   Key, 
-  ArrowRight 
+  ArrowRight,
+  TrendingUp,
+  Sparkles,
+  ShieldAlert
 } from 'lucide-react';
 
 export const DashboardView = ({ setActiveTab }) => {
@@ -46,8 +49,9 @@ export const DashboardView = ({ setActiveTab }) => {
   return (
     <div>
       <div style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.75rem', marginBottom: '0.35rem' }}>
-          Bienvenido, {user?.user_nick} 👋
+        <h2 style={{ fontSize: '1.75rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span>Bienvenido, {user?.user_nick}</span>
+          <Sparkles size={22} color="var(--gold)" />
         </h2>
         <p style={{ color: 'var(--text-secondary)' }}>
           Panel Principal de Administración del Gobierno Autónomo Municipal GAMA.
@@ -59,8 +63,13 @@ export const DashboardView = ({ setActiveTab }) => {
           <div className="stat-icon stat-icon-primary">
             <Users size={26} />
           </div>
-          <div>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Total Usuarios</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Total Usuarios</span>
+              <span className="badge badge-primary" style={{ fontSize: '0.675rem' }}>
+                <TrendingUp size={10} /> Activo
+              </span>
+            </div>
             <h3 style={{ fontSize: '1.8rem', marginTop: '0.1rem' }}>{loading ? '...' : stats.usersCount}</h3>
           </div>
         </div>
@@ -69,8 +78,13 @@ export const DashboardView = ({ setActiveTab }) => {
           <div className="stat-icon stat-icon-sky">
             <Building2 size={26} />
           </div>
-          <div>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Departamentos</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Departamentos</span>
+              <span className="badge badge-sky" style={{ fontSize: '0.675rem' }}>
+                Estructura
+              </span>
+            </div>
             <h3 style={{ fontSize: '1.8rem', marginTop: '0.1rem' }}>{loading ? '...' : stats.deptCount}</h3>
           </div>
         </div>
@@ -79,8 +93,13 @@ export const DashboardView = ({ setActiveTab }) => {
           <div className="stat-icon stat-icon-success">
             <ShieldCheck size={26} />
           </div>
-          <div>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Roles Configurados</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Roles RBAC</span>
+              <span className="badge badge-success" style={{ fontSize: '0.675rem' }}>
+                Seguridad
+              </span>
+            </div>
             <h3 style={{ fontSize: '1.8rem', marginTop: '0.1rem' }}>{stats.rolesCount}</h3>
           </div>
         </div>

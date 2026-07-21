@@ -64,6 +64,20 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser, departments })
     setError('');
   }, [editingUser, isOpen, departments]);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen && !saving) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose, saving]);
+
   if (!isOpen) return null;
 
   const handleChange = (e) => {
@@ -100,12 +114,20 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser, departments })
   };
 
   return (
-    <div className="modal-overlay">
+    <div
+      className="modal-overlay"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !saving) onClose();
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="user-modal-title"
+    >
       <div className="modal-content">
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <UserPlus size={20} color="var(--primary)" />
-            <h3 style={{ fontSize: '1.15rem' }}>
+            <h3 id="user-modal-title" style={{ fontSize: '1.15rem' }}>
               {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
             </h3>
           </div>
@@ -113,6 +135,7 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser, departments })
             onClick={onClose}
             className="btn btn-secondary btn-icon-only"
             type="button"
+            aria-label="Cerrar ventana de usuario"
           >
             <X size={18} />
           </button>

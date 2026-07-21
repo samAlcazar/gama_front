@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { UserModal } from './UserModal';
+import { ConfirmModal } from './ConfirmModal';
+import { EmptyState } from './EmptyState';
 import { 
   UserPlus, 
   Search, 
@@ -26,6 +28,7 @@ export const UsersView = () => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [confirmState, setConfirmState] = useState({ isOpen: false, user: null, loading: false });
 
   useEffect(() => {
     loadData();
@@ -73,14 +76,20 @@ export const UsersView = () => {
     await loadData();
   };
 
-  const handleDeactivateUser = async (userId, userName) => {
-    if (!window.confirm(`¿Estás seguro de dar de baja al usuario "${userName}"?`)) return;
+  const handleOpenDeactivateModal = (u) => {
+    setConfirmState({ isOpen: true, user: u, loading: false });
+  };
 
+  const handleConfirmDeactivate = async () => {
+    if (!confirmState.user) return;
     try {
-      await apiClient(`/users/${userId}`, { method: 'DELETE' });
+      setConfirmState((prev) => ({ ...prev, loading: true }));
+      await apiClient(`/users/${confirmState.user.id}`, { method: 'DELETE' });
+      setConfirmState({ isOpen: false, user: null, loading: false });
       await loadData();
     } catch (err) {
-      alert(err.message || 'Error desactivando usuario.');
+      setError(err.message || 'Error desactivando usuario.');
+      setConfirmState({ isOpen: false, user: null, loading: false });
     }
   };
 
@@ -145,6 +154,7 @@ export const UsersView = () => {
             placeholder="Buscar por Nombre, CI, Nick o Cargo..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            aria-label="Buscar usuarios por nombre, CI, nick o cargo"
           />
         </div>
 
@@ -155,6 +165,7 @@ export const UsersView = () => {
             style={{ paddingLeft: '2.5rem' }}
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
+            aria-label="Filtrar usuarios por rol"
           >
             <option value="">Todos los Roles</option>
             <option value="ADMIN">ADMIN</option>
@@ -192,8 +203,13 @@ export const UsersView = () => {
               </tr>
             ) : filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
-                  No se encontraron usuarios que coincidan con la búsqueda.
+                <td colSpan="7" style={{ padding: '1rem' }}>
+                  <EmptyState
+                    title="No se encontraron funcionarios"
+                    description={search || roleFilter ? "Ningún usuario coincide con los criterios de búsqueda o filtro aplicados." : "No existen funcionarios registrados en el sistema."}
+                    actionText={search || roleFilter ? "Limpiar Filtros" : undefined}
+                    onAction={search || roleFilter ? () => { setSearch(''); setRoleFilter(''); } : undefined}
+                  />
                 </td>
               </tr>
             ) : (
@@ -245,9 +261,10 @@ export const UsersView = () => {
 
                         {hasPermission('USUARIO_DESACTIVAR') && u.active && (
                           <button
-                            onClick={() => handleDeactivateUser(u.id, u.user_name)}
+                            onClick={() => handleOpenDeactivateModal(u)}
                             className="btn btn-danger btn-icon-only"
                             title="Dar de Baja"
+                            aria-label={`Dar de baja al usuario ${u.user_name}`}
                           >
                             <UserX size={15} />
                           </button>
@@ -268,6 +285,18 @@ export const UsersView = () => {
         onSave={handleSaveUser}
         editingUser={editingUser}
         departments={departments}
+      />
+
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={() => setConfirmState({ isOpen: false, user: null, loading: false })}
+        onConfirm={handleConfirmDeactivate}
+        title="Dar de Baja a Funcionario"
+        message={`¿Estás seguro de desactivar la cuenta del funcionario "${confirmState.user?.user_name}" (@${confirmState.user?.user_nick})?`}
+        confirmText="Dar de baja"
+        cancelText="Cancelar"
+        isDanger={true}
+        loading={confirmState.loading}
       />
     </div>
   );
