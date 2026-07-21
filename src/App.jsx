@@ -56,7 +56,7 @@ const MainApp = () => {
       <div className="main-content">
         <Navbar title={getPageTitle()} theme={theme} toggleTheme={toggleTheme} />
 
-        <main className="content-body">
+        <main className="content-body page-transition" key={activeTab}>
           {activeTab === 'dashboard' && <DashboardView setActiveTab={setActiveTab} />}
           {activeTab === 'users' && <UsersView />}
           {activeTab === 'departments' && <DepartmentsView />}

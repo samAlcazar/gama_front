@@ -55,8 +55,8 @@ export const DashboardView = ({ setActiveTab }) => {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-        <div className="glass-card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(99, 102, 241, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#818cf8' }}>
+        <div className="glass-card glass-card-interactive" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div className="stat-icon stat-icon-primary">
             <Users size={26} />
           </div>
           <div>
@@ -65,8 +65,8 @@ export const DashboardView = ({ setActiveTab }) => {
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(6, 182, 212, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#22d3ee' }}>
+        <div className="glass-card glass-card-interactive" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div className="stat-icon stat-icon-sky">
             <Building2 size={26} />
           </div>
           <div>
@@ -75,8 +75,8 @@ export const DashboardView = ({ setActiveTab }) => {
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
+        <div className="glass-card glass-card-interactive" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div className="stat-icon stat-icon-success">
             <ShieldCheck size={26} />
           </div>
           <div>
