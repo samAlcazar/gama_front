@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
+import { getRoadmaps, getInbox } from '../api/roadmaps';
 import { useAuth } from '../context/AuthContext';
 import { 
   Users, 
   Building2, 
+  FileText,
+  Inbox,
   ShieldCheck, 
   Activity, 
   CheckCircle2, 
@@ -11,7 +14,7 @@ import {
   ArrowRight,
   TrendingUp,
   Sparkles,
-  ShieldAlert
+  UserCheck
 } from 'lucide-react';
 
 export const DashboardView = ({ setActiveTab }) => {
@@ -19,7 +22,8 @@ export const DashboardView = ({ setActiveTab }) => {
   const [stats, setStats] = useState({
     usersCount: 0,
     deptCount: 0,
-    rolesCount: 8,
+    roadmapsCount: 0,
+    inboxCount: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -27,14 +31,17 @@ export const DashboardView = ({ setActiveTab }) => {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const [users, depts] = await Promise.all([
+        const [users, depts, roadmaps, inbox] = await Promise.all([
           apiClient('/users').catch(() => []),
           apiClient('/departments').catch(() => []),
+          getRoadmaps().catch(() => []),
+          getInbox().catch(() => []),
         ]);
         setStats({
           usersCount: users.length,
           deptCount: depts.length,
-          rolesCount: 8,
+          roadmapsCount: roadmaps.length,
+          inboxCount: inbox.length,
         });
       } catch (err) {
         console.error('Error cargando stats:', err);
@@ -54,53 +61,60 @@ export const DashboardView = ({ setActiveTab }) => {
           <Sparkles size={22} color="var(--gold)" />
         </h2>
         <p style={{ color: 'var(--text-secondary)' }}>
-          Panel Principal de Administración del Gobierno Autónomo Municipal GAMA.
+          Sistema Municipal de Trámites y Hojas de Ruta - GAMA.
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-        <div className="glass-card glass-card-interactive" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+        <div className="glass-card glass-card-interactive" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }} onClick={() => setActiveTab('inbox')}>
           <div className="stat-icon stat-icon-primary">
+            <Inbox size={26} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>En Bandeja</span>
+              <span className="badge badge-danger" style={{ fontSize: '0.675rem' }}>Pendientes</span>
+            </div>
+            <h3 style={{ fontSize: '1.8rem', marginTop: '0.1rem' }}>{loading ? '...' : stats.inboxCount}</h3>
+          </div>
+        </div>
+
+        <div className="glass-card glass-card-interactive" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }} onClick={() => setActiveTab('roadmaps')}>
+          <div className="stat-icon stat-icon-sky">
+            <FileText size={26} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Hojas de Ruta</span>
+              <span className="badge badge-primary" style={{ fontSize: '0.675rem' }}>Trámites</span>
+            </div>
+            <h3 style={{ fontSize: '1.8rem', marginTop: '0.1rem' }}>{loading ? '...' : stats.roadmapsCount}</h3>
+          </div>
+        </div>
+
+        <div className="glass-card glass-card-interactive" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }} onClick={() => setActiveTab('users')}>
+          <div className="stat-icon stat-icon-success">
             <Users size={26} />
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Total Usuarios</span>
-              <span className="badge badge-primary" style={{ fontSize: '0.675rem' }}>
-                <TrendingUp size={10} /> Activo
-              </span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Usuarios</span>
+              <span className="badge badge-success" style={{ fontSize: '0.675rem' }}>Activos</span>
             </div>
             <h3 style={{ fontSize: '1.8rem', marginTop: '0.1rem' }}>{loading ? '...' : stats.usersCount}</h3>
           </div>
         </div>
 
-        <div className="glass-card glass-card-interactive" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <div className="stat-icon stat-icon-sky">
+        <div className="glass-card glass-card-interactive" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }} onClick={() => setActiveTab('departments')}>
+          <div className="stat-icon stat-icon-warning">
             <Building2 size={26} />
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Departamentos</span>
-              <span className="badge badge-sky" style={{ fontSize: '0.675rem' }}>
-                Estructura
-              </span>
+              <span className="badge badge-warning" style={{ fontSize: '0.675rem' }}>Estructura</span>
             </div>
             <h3 style={{ fontSize: '1.8rem', marginTop: '0.1rem' }}>{loading ? '...' : stats.deptCount}</h3>
-          </div>
-        </div>
-
-        <div className="glass-card glass-card-interactive" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <div className="stat-icon stat-icon-success">
-            <ShieldCheck size={26} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Roles RBAC</span>
-              <span className="badge badge-success" style={{ fontSize: '0.675rem' }}>
-                Seguridad
-              </span>
-            </div>
-            <h3 style={{ fontSize: '1.8rem', marginTop: '0.1rem' }}>{stats.rolesCount}</h3>
           </div>
         </div>
       </div>
@@ -114,27 +128,40 @@ export const DashboardView = ({ setActiveTab }) => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <button
-              onClick={() => setActiveTab('users')}
+              onClick={() => setActiveTab('inbox')}
               className="btn btn-secondary"
               style={{ justifyContent: 'space-between', padding: '0.85rem 1rem' }}
               type="button"
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Users size={16} />
-                <span>Administrar Usuarios</span>
+                <Inbox size={16} color="var(--primary)" />
+                <span>Atender Bandeja de Entrada</span>
               </div>
               <ArrowRight size={16} />
             </button>
 
             <button
-              onClick={() => setActiveTab('departments')}
+              onClick={() => setActiveTab('roadmaps')}
               className="btn btn-secondary"
               style={{ justifyContent: 'space-between', padding: '0.85rem 1rem' }}
               type="button"
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Building2 size={16} />
-                <span>Ver Organigrama de Departamentos</span>
+                <FileText size={16} />
+                <span>Gestionar Hojas de Ruta</span>
+              </div>
+              <ArrowRight size={16} />
+            </button>
+
+            <button
+              onClick={() => setActiveTab('applicants')}
+              className="btn btn-secondary"
+              style={{ justifyContent: 'space-between', padding: '0.85rem 1rem' }}
+              type="button"
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <UserCheck size={16} />
+                <span>Padrón de Solicitantes</span>
               </div>
               <ArrowRight size={16} />
             </button>

@@ -2,6 +2,9 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   LayoutDashboard, 
+  Inbox,
+  FileText,
+  UserCheck,
   Users, 
   Building2, 
   ShieldAlert, 
@@ -14,6 +17,9 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
 
   const menuItems = [
     { id: 'dashboard', label: 'Resumen', icon: LayoutDashboard, perm: null },
+    { id: 'inbox', label: 'Bandeja Entrada', icon: Inbox, perm: 'TRAMITE_VER_BANDEJA' },
+    { id: 'roadmaps', label: 'Hojas de Ruta', icon: FileText, perm: 'TRAMITE_VER_BANDEJA' },
+    { id: 'applicants', label: 'Solicitantes', icon: UserCheck, perm: 'TRAMITE_VER_BANDEJA' },
     { id: 'users', label: 'Usuarios', icon: Users, perm: 'USUARIO_VER' },
     { id: 'departments', label: 'Departamentos', icon: Building2, perm: null },
     { id: 'audit', label: 'Auditoría', icon: ShieldAlert, perm: 'AUDITORIA_VER' },

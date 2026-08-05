@@ -7,6 +7,9 @@ import { DashboardView } from './components/DashboardView';
 import { UsersView } from './components/UsersView';
 import { DepartmentsView } from './components/DepartmentsView';
 import { AuditView } from './components/AuditView';
+import { InboxView } from './components/InboxView';
+import { RoadmapsView } from './components/RoadmapsView';
+import { ApplicantsView } from './components/ApplicantsView';
 
 const MainApp = () => {
   const { token, loading } = useAuth();
@@ -38,6 +41,12 @@ const MainApp = () => {
     switch (activeTab) {
       case 'dashboard':
         return 'Resumen General';
+      case 'inbox':
+        return 'Bandeja de Entrada Activa';
+      case 'roadmaps':
+        return 'Hojas de Ruta y Trámites';
+      case 'applicants':
+        return 'Padrón de Solicitantes e Interesados';
       case 'users':
         return 'Administración de Usuarios';
       case 'departments':
@@ -58,6 +67,9 @@ const MainApp = () => {
 
         <main className="content-body page-transition" key={activeTab}>
           {activeTab === 'dashboard' && <DashboardView setActiveTab={setActiveTab} />}
+          {activeTab === 'inbox' && <InboxView />}
+          {activeTab === 'roadmaps' && <RoadmapsView />}
+          {activeTab === 'applicants' && <ApplicantsView />}
           {activeTab === 'users' && <UsersView />}
           {activeTab === 'departments' && <DepartmentsView />}
           {activeTab === 'audit' && <AuditView />}
