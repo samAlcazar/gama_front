@@ -6,6 +6,7 @@ import {
   FileText,
   UserCheck,
   Users, 
+  ShieldCheck,
   Building2, 
   ShieldAlert, 
   LogOut, 
@@ -21,6 +22,7 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
     { id: 'roadmaps', label: 'Hojas de Ruta', icon: FileText, perm: 'TRAMITE_VER_BANDEJA' },
     { id: 'applicants', label: 'Solicitantes', icon: UserCheck, perm: 'TRAMITE_VER_BANDEJA' },
     { id: 'users', label: 'Usuarios', icon: Users, perm: 'USUARIO_VER' },
+    { id: 'roles', label: 'Roles y Permisos', icon: ShieldCheck, perm: 'USUARIO_VER' },
     { id: 'departments', label: 'Departamentos', icon: Building2, perm: null },
     { id: 'audit', label: 'Auditoría', icon: ShieldAlert, perm: 'AUDITORIA_VER' },
   ];
@@ -63,7 +65,7 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
           </div>
           <div className="user-badge-info">
             <span className="user-badge-nick">{user?.user_nick}</span>
-            <span className="user-badge-role">{user?.role || 'FUNCIONARIO'}</span>
+            <span className="user-badge-role">{user?.role || user?.user_principal_role || 'FUNCIONARIO'}</span>
           </div>
         </div>
 

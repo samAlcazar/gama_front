@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Building2, Save, AlertCircle } from 'lucide-react';
 
-export const DepartmentModal = ({ isOpen, onClose, onSave, departments }) => {
+export const DepartmentModal = ({ isOpen, onClose, onSave, editingDepartment, departments }) => {
   const [name, setName] = useState('');
   const [sigla, setSigla] = useState('');
   const [parentId, setParentId] = useState('');
@@ -9,11 +9,17 @@ export const DepartmentModal = ({ isOpen, onClose, onSave, departments }) => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    setName('');
-    setSigla('');
-    setParentId('');
+    if (editingDepartment) {
+      setName(editingDepartment.name || '');
+      setSigla(editingDepartment.sigla || '');
+      setParentId(editingDepartment.parent_department_id || '');
+    } else {
+      setName('');
+      setSigla('');
+      setParentId('');
+    }
     setError('');
-  }, [isOpen]);
+  }, [editingDepartment, isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -42,11 +48,17 @@ export const DepartmentModal = ({ isOpen, onClose, onSave, departments }) => {
 
     try {
       setSaving(true);
-      await onSave({
+      const payload = {
         name: name.trim(),
         sigla: sigla.trim() ? sigla.trim().toUpperCase() : null,
         parent_department_id: parentId ? parentId : null,
-      });
+      };
+
+      if (editingDepartment) {
+        payload.id = editingDepartment.id;
+      }
+
+      await onSave(payload, !!editingDepartment);
       onClose();
     } catch (err) {
       setError(err.message || 'Error al guardar departamento.');
@@ -54,6 +66,11 @@ export const DepartmentModal = ({ isOpen, onClose, onSave, departments }) => {
       setSaving(false);
     }
   };
+
+  // Filtrar para no permitir seleccionarse a sí mismo como padre
+  const availableParentDepts = departments.filter(
+    (d) => !editingDepartment || d.id !== editingDepartment.id
+  );
 
   return (
     <div
@@ -69,7 +86,9 @@ export const DepartmentModal = ({ isOpen, onClose, onSave, departments }) => {
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Building2 size={20} color="var(--accent)" />
-            <h3 id="dept-modal-title" style={{ fontSize: '1.15rem' }}>Nuevo Departamento</h3>
+            <h3 id="dept-modal-title" style={{ fontSize: '1.15rem' }}>
+              {editingDepartment ? 'Editar Departamento' : 'Nuevo Departamento'}
+            </h3>
           </div>
           <button
             onClick={onClose}
@@ -122,7 +141,7 @@ export const DepartmentModal = ({ isOpen, onClose, onSave, departments }) => {
                 onChange={(e) => setParentId(e.target.value)}
               >
                 <option value="">-- Sin dependencia superior (Nivel 1 Raíz) --</option>
-                {departments.map((d) => (
+                {availableParentDepts.map((d) => (
                   <option key={d.id} value={d.id}>
                     {'—'.repeat(d.level - 1)} {d.name} {d.sigla ? `(${d.sigla})` : ''} [Nivel {d.level}]
                   </option>
@@ -149,7 +168,7 @@ export const DepartmentModal = ({ isOpen, onClose, onSave, departments }) => {
               disabled={saving}
             >
               <Save size={16} />
-              <span>{saving ? 'Guardando...' : 'Crear Departamento'}</span>
+              <span>{saving ? 'Guardando...' : editingDepartment ? 'Actualizar' : 'Crear Departamento'}</span>
             </button>
           </div>
         </form>

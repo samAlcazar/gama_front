@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { DepartmentModal } from './DepartmentModal';
+import { ConfirmModal } from './ConfirmModal';
 import { EmptyState } from './EmptyState';
 import { 
   Building2, 
@@ -10,7 +11,9 @@ import {
   AlertCircle, 
   GitCommit, 
   RefreshCw,
-  FolderTree
+  FolderTree,
+  Edit3,
+  Trash2
 } from 'lucide-react';
 
 export const DepartmentsView = () => {
@@ -19,7 +22,10 @@ export const DepartmentsView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingDepartment, setEditingDepartment] = useState(null);
+  const [confirmState, setConfirmState] = useState({ isOpen: false, dept: null, loading: false });
 
   useEffect(() => {
     loadDepartments();
@@ -38,12 +44,46 @@ export const DepartmentsView = () => {
     }
   };
 
-  const handleSaveDepartment = async (deptForm) => {
-    await apiClient('/departments', {
-      method: 'POST',
-      body: JSON.stringify(deptForm),
-    });
+  const handleCreateDepartment = () => {
+    setEditingDepartment(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditDepartment = (dept) => {
+    setEditingDepartment(dept);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveDepartment = async (deptForm, isEdit) => {
+    if (isEdit) {
+      await apiClient(`/departments/${deptForm.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(deptForm),
+      });
+    } else {
+      await apiClient('/departments', {
+        method: 'POST',
+        body: JSON.stringify(deptForm),
+      });
+    }
     await loadDepartments();
+  };
+
+  const handleOpenDeleteModal = (dept) => {
+    setConfirmState({ isOpen: true, dept, loading: false });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmState.dept) return;
+    try {
+      setConfirmState((prev) => ({ ...prev, loading: true }));
+      await apiClient(`/departments/${confirmState.dept.id}`, { method: 'DELETE' });
+      setConfirmState({ isOpen: false, dept: null, loading: false });
+      await loadDepartments();
+    } catch (err) {
+      setError(err.message || 'Error eliminando departamento.');
+      setConfirmState({ isOpen: false, dept: null, loading: false });
+    }
   };
 
   const deptMap = departments.reduce((acc, d) => {
@@ -51,7 +91,36 @@ export const DepartmentsView = () => {
     return acc;
   }, {});
 
-  const filteredDepts = departments.filter((d) =>
+  // Organizar departamentos en árbol jerárquico (Padres seguidos inmediatamente por sus dependencias hijas)
+  const buildTreeList = (items) => {
+    const itemMap = {};
+    items.forEach((item) => {
+      itemMap[item.id] = { ...item, children: [] };
+    });
+
+    const rootNodes = [];
+    items.forEach((item) => {
+      if (item.parent_department_id && itemMap[item.parent_department_id]) {
+        itemMap[item.parent_department_id].children.push(itemMap[item.id]);
+      } else {
+        rootNodes.push(itemMap[item.id]);
+      }
+    });
+
+    const result = [];
+    const traverse = (node) => {
+      const { children, ...rest } = node;
+      result.push(rest);
+      children.forEach(traverse);
+    };
+
+    rootNodes.forEach(traverse);
+    return result;
+  };
+
+  const sortedTreeDepts = buildTreeList(departments);
+
+  const filteredDepts = sortedTreeDepts.filter((d) =>
     (d.name || '').toLowerCase().includes(search.toLowerCase()) ||
     (d.sigla || '').toLowerCase().includes(search.toLowerCase())
   );
@@ -72,7 +141,7 @@ export const DepartmentsView = () => {
           </button>
 
           {hasRole('ADMIN') && (
-            <button onClick={() => setIsModalOpen(true)} className="btn btn-primary">
+            <button onClick={handleCreateDepartment} className="btn btn-primary">
               <Plus size={18} />
               <span>Nuevo Departamento</span>
             </button>
@@ -113,18 +182,19 @@ export const DepartmentsView = () => {
               <th>Nivel</th>
               <th>Dependencia Superior</th>
               <th>Estado</th>
+              <th style={{ textAlign: 'right' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                <td colSpan="6" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
                   Cargando departamentos...
                 </td>
               </tr>
             ) : filteredDepts.length === 0 ? (
               <tr>
-                <td colSpan="5" style={{ padding: '1rem' }}>
+                <td colSpan="6" style={{ padding: '1rem' }}>
                   <EmptyState
                     title="No se encontraron departamentos"
                     description={search ? "Ningún departamento o dependencia coincide con la búsqueda." : "No existen departamentos registrados en el sistema."}
@@ -178,6 +248,26 @@ export const DepartmentsView = () => {
                     <td>
                       <span className="badge badge-success">Activo</span>
                     </td>
+                    <td style={{ textAlign: 'right' }}>
+                      {hasRole('ADMIN') && (
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.35rem' }}>
+                          <button
+                            onClick={() => handleEditDepartment(d)}
+                            className="btn btn-secondary btn-icon-only"
+                            title="Editar Departamento"
+                          >
+                            <Edit3 size={15} color="var(--accent)" />
+                          </button>
+                          <button
+                            onClick={() => handleOpenDeleteModal(d)}
+                            className="btn btn-secondary btn-icon-only"
+                            title="Eliminar Departamento"
+                          >
+                            <Trash2 size={15} color="var(--danger)" />
+                          </button>
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 );
               })
@@ -190,7 +280,19 @@ export const DepartmentsView = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveDepartment}
+        editingDepartment={editingDepartment}
         departments={departments}
+      />
+
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={() => setConfirmState({ isOpen: false, dept: null, loading: false })}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar Departamento"
+        message={`¿Estás seguro de eliminar el departamento "${confirmState.dept?.name}"? Esta acción removerá el departamento de la estructura del organigrama.`}
+        confirmText="Eliminar"
+        isDanger={true}
+        loading={confirmState.loading}
       />
     </div>
   );

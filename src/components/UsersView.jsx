@@ -227,7 +227,7 @@ export const UsersView = () => {
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem' }}>
                         <Building size={14} color="var(--text-muted)" />
-                        <span>{dept ? dept.name : 'Sin Depto'}</span>
+                        <span>{dept ? dept.name : (u.user_principal_role === 'ADMIN' ? 'Administración Global' : 'Sin Depto')}</span>
                       </div>
                     </td>
                     <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>

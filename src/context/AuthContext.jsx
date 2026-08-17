@@ -26,17 +26,16 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const data = await apiClient('/auth/me');
-      setUser({
+      const userRole = data.role || data.user_principal_role;
+      const userInfo = {
         id: data.id,
         user_nick: data.user_nick,
-        role: data.role,
-      });
+        role: userRole,
+        user_principal_role: userRole,
+      };
+      setUser(userInfo);
       setPermissions(data.permissions || []);
-      localStorage.setItem('gama_user_info', JSON.stringify({
-        id: data.id,
-        user_nick: data.user_nick,
-        role: data.role,
-      }));
+      localStorage.setItem('gama_user_info', JSON.stringify(userInfo));
       localStorage.setItem('gama_user_perms', JSON.stringify(data.permissions || []));
     } catch (err) {
       console.error('Error cargando perfil:', err);
@@ -55,7 +54,13 @@ export const AuthProvider = ({ children }) => {
       });
 
       const authToken = data.token;
-      const userInfo = data.user?.user || data.user;
+      const rawUser = data.user?.user || data.user;
+      const userRole = rawUser?.role || rawUser?.user_principal_role;
+      const userInfo = {
+        ...rawUser,
+        role: userRole,
+        user_principal_role: userRole,
+      };
       const userPerms = data.user?.permissions || [];
 
       setToken(authToken);

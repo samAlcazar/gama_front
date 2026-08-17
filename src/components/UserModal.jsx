@@ -92,8 +92,8 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser, departments })
     e.preventDefault();
     setError('');
 
-    if (!formData.user_name || !formData.user_ci || !formData.user_nick || !formData.department_id) {
-      setError('Por favor completa los campos obligatorios (Nombre, CI, Nick y Departamento).');
+    if (!formData.user_name || !formData.user_ci || !formData.user_nick) {
+      setError('Por favor completa los campos obligatorios (Nombre, CI y Nick).');
       return;
     }
 
@@ -209,15 +209,14 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser, departments })
             </div>
 
             <div className="form-group">
-              <label className="form-label">Departamento / Dependencia *</label>
+              <label className="form-label">Departamento / Dependencia (Opcional para Admin)</label>
               <select
                 name="department_id"
                 className="form-select"
                 value={formData.department_id}
                 onChange={handleChange}
-                required
               >
-                <option value="">-- Selecciona un Departamento --</option>
+                <option value="">-- Sin Departamento (Administración Global) --</option>
                 {departments.map((d) => (
                   <option key={d.id} value={d.id}>
                     {'—'.repeat(d.level - 1)} {d.name} {d.sigla ? `(${d.sigla})` : ''}

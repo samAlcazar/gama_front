@@ -10,6 +10,7 @@ import { AuditView } from './components/AuditView';
 import { InboxView } from './components/InboxView';
 import { RoadmapsView } from './components/RoadmapsView';
 import { ApplicantsView } from './components/ApplicantsView';
+import { RolesView } from './components/RolesView';
 
 const MainApp = () => {
   const { token, loading } = useAuth();
@@ -49,6 +50,8 @@ const MainApp = () => {
         return 'Padrón de Solicitantes e Interesados';
       case 'users':
         return 'Administración de Usuarios';
+      case 'roles':
+        return 'Matriz de Roles y Permisos RBAC';
       case 'departments':
         return 'Organigrama y Departamentos';
       case 'audit':
@@ -71,6 +74,7 @@ const MainApp = () => {
           {activeTab === 'roadmaps' && <RoadmapsView />}
           {activeTab === 'applicants' && <ApplicantsView />}
           {activeTab === 'users' && <UsersView />}
+          {activeTab === 'roles' && <RolesView />}
           {activeTab === 'departments' && <DepartmentsView />}
           {activeTab === 'audit' && <AuditView />}
         </main>

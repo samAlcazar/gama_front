@@ -14,7 +14,8 @@ import {
   ArrowRight,
   TrendingUp,
   Sparkles,
-  UserCheck
+  UserCheck,
+  RefreshCw
 } from 'lucide-react';
 
 export const DashboardView = ({ setActiveTab }) => {
@@ -27,42 +28,49 @@ export const DashboardView = ({ setActiveTab }) => {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const [users, depts, roadmaps, inbox] = await Promise.all([
-          apiClient('/users').catch(() => []),
-          apiClient('/departments').catch(() => []),
-          getRoadmaps().catch(() => []),
-          getInbox().catch(() => []),
-        ]);
-        setStats({
-          usersCount: users.length,
-          deptCount: depts.length,
-          roadmapsCount: roadmaps.length,
-          inboxCount: inbox.length,
-        });
-      } catch (err) {
-        console.error('Error cargando stats:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const [users, depts, roadmaps, inbox] = await Promise.all([
+        apiClient('/users').catch((err) => { console.error('Error cargando usuarios:', err); return []; }),
+        apiClient('/departments').catch((err) => { console.error('Error cargando departamentos:', err); return []; }),
+        getRoadmaps().catch((err) => { console.error('Error cargando hojas de ruta:', err); return []; }),
+        getInbox().catch((err) => { console.error('Error cargando bandeja:', err); return []; }),
+      ]);
+      setStats({
+        usersCount: Array.isArray(users) ? users.length : 0,
+        deptCount: Array.isArray(depts) ? depts.length : 0,
+        roadmapsCount: Array.isArray(roadmaps) ? roadmaps.length : 0,
+        inboxCount: Array.isArray(inbox) ? inbox.length : 0,
+      });
+    } catch (err) {
+      console.error('Error cargando stats:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchStats();
   }, []);
 
   return (
     <div>
-      <div style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.75rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span>Bienvenido, {user?.user_nick}</span>
-          <Sparkles size={22} color="var(--gold)" />
-        </h2>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Sistema Municipal de Trámites y Hojas de Ruta - GAMA.
-        </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h2 style={{ fontSize: '1.75rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>Bienvenido, {user?.user_nick}</span>
+            <Sparkles size={22} color="var(--gold)" />
+          </h2>
+          <p style={{ color: 'var(--text-secondary)' }}>
+            Sistema Municipal de Trámites y Hojas de Ruta - GAMA.
+          </p>
+        </div>
+
+        <button onClick={fetchStats} className="btn btn-secondary" title="Recargar métricas">
+          <RefreshCw size={16} className={loading ? 'spin' : ''} />
+          <span>Actualizar Datos</span>
+        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
