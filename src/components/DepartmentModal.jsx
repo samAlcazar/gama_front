@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Building2, Save, AlertCircle } from 'lucide-react';
 
-export const DepartmentModal = ({ isOpen, onClose, onSave, editingDepartment, departments }) => {
+export const DepartmentModal = ({ isOpen, onClose, onSave, editingDepartment, initialParentId, departments }) => {
   const [name, setName] = useState('');
   const [sigla, setSigla] = useState('');
   const [parentId, setParentId] = useState('');
@@ -16,10 +16,10 @@ export const DepartmentModal = ({ isOpen, onClose, onSave, editingDepartment, de
     } else {
       setName('');
       setSigla('');
-      setParentId('');
+      setParentId(initialParentId || '');
     }
     setError('');
-  }, [editingDepartment, isOpen]);
+  }, [editingDepartment, initialParentId, isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
